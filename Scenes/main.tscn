@@ -1,13 +1,14 @@
-[gd_scene load_steps=5 format=1]
+[gd_scene load_steps=6 format=1]
 
 [ext_resource path="res://Scenes/drone_greybox_1.scn" type="PackedScene" id=1]
 [ext_resource path="res://Scripts/vr_cam.gd" type="Script" id=2]
+[ext_resource path="res://Scenes/area_greybox_0.scn" type="PackedScene" id=3]
 
-[sub_resource type="GDScript" id=2]
+[sub_resource type="GDScript" id=1]
 
-script/source = "extends Spatial\n\nfunc _ready():\n\tset_process(true)\n\nfunc _process(delta):\n\t\n\t#set_rotation(get_node(\"DroneCam\").get)\n\ttranslate(Vector3(0, 0.1, 0))"
+script/source = "extends Spatial\n\nfunc _ready():\n\tget_node(\"DroneCam\").set_global_transform(Transform(Matrix3(), get_node(\"DroneCam\").get_global_transform().origin))\n\tset_process(true)\n\nfunc _process(delta):\n\tvar cam = get_node(\"DroneCam\")\n\tvar camRot = cam.get_global_transform().basis\n\tset_global_transform(Transform(Matrix3(Quat(get_global_transform().basis).slerp(Quat(camRot), 1)), get_global_transform().origin))\n\ttranslate(Vector3(0, 8*delta, 0))\n\tglobal_translate(Vector3(0, -7*delta, 0))\n\t#set_rotation(get_global_transform())\n\t#set_rotation(cam.get_rotation())\n\t#set_global_transform(get_node(\"DroneCam\").get_transform())\n\t#cam.set_rotation(Vector3(0, 0, 0))\n\tcam.set_global_transform(Transform(camRot, cam.get_global_transform().origin))\n\t#cam.rotate(c\n\t#translate(Vector3(0, 0.1, 0))"
 
-[sub_resource type="Environment" id=1]
+[sub_resource type="Environment" id=2]
 
 ambient_light/enabled = true
 ambient_light/color = Color( 0.839844, 0.981232, 1, 1 )
@@ -79,15 +80,16 @@ shadow/zoffset_scale = 2.0
 
 [node name="drone_greybox_1" parent="." instance=ExtResource( 1 )]
 
-script/script = SubResource( 2 )
+transform/local = Transform( 1, 0, 0, 0, 0.820009, 0.572351, 0, -0.572351, 0.820009, 0, 4.77263, 0 )
+script/script = SubResource( 1 )
 
 [node name="DroneCam" type="Position3D" parent="drone_greybox_1"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 0.25, 0, 7.45058e-09, -7.45058e-09, 0.25, -7.45058e-09, -7.45058e-09, 0, 0.25, 0.0234241, 1.88606, 0 )
+transform/local = Transform( 0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0.0234241, 1.74581, 1.77829 )
 script/script = ExtResource( 2 )
 camFieldOfView = 60.0
-camEnvironment = SubResource( 1 )
+camEnvironment = SubResource( 2 )
 
 [node name="TestCube" type="TestCube" parent="."]
 
@@ -107,5 +109,7 @@ geometry/depth_scale = false
 geometry/visible_in_all_rooms = false
 geometry/use_baked_light = false
 geometry/baked_light_tex_id = 0
+
+[node name="area_greybox_0" parent="." instance=ExtResource( 3 )]
 
 
