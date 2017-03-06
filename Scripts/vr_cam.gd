@@ -15,6 +15,8 @@ extends Position3D
 # cameras are automatically moved to the traansform of their mounts each cycle
 
 export var camFieldOfView=60.0
+export var camZNear=0.1
+export var camZFar=100
 export(Environment) var camEnvironment
 
 var leftEye
@@ -39,7 +41,7 @@ class EyeView:
 		viewportArea.add_child(viewport)
 		camera=Camera.new()
 		viewport.add_child(camera)
-		camera.set_perspective(root.camFieldOfView, camera.get_znear(), camera.get_zfar())
+		camera.set_perspective(root.camFieldOfView, root.camZNear, root.camZFar)
 		camera.set_environment(root.camEnvironment)
 		cameraMount=Spatial.new()
 		root.add_child(cameraMount)

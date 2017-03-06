@@ -89,6 +89,8 @@ _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( 0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0.0234241, 1.74581, 1.77829 )
 script/script = ExtResource( 2 )
 camFieldOfView = 60.0
+camZNear = 0.1
+camZFar = 500
 camEnvironment = SubResource( 2 )
 
 [node name="TestCube" type="TestCube" parent="."]
