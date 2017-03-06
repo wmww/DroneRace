@@ -1,16 +1,16 @@
-[gd_scene load_steps=8 format=1]
+[gd_scene load_steps=9 format=1]
 
-[ext_resource path="res://Scenes/drone_greybox_1.scn" type="PackedScene" id=1]
-[ext_resource path="res://Scripts/vr_cam.gd" type="Script" id=2]
+[ext_resource path="res://Scripts/vr_cam.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/drone_greybox_2.scn" type="PackedScene" id=2]
 [ext_resource path="res://Scenes/area_greybox_0.scn" type="PackedScene" id=3]
 
-[sub_resource type="SphereShape" id=1]
+[sub_resource type="BoxShape" id=5]
 
-radius = 4.64
+extents = Vector3( 0.14, 0.02, 0.14 )
 
 [sub_resource type="GDScript" id=2]
 
-script/source = "extends Spatial\n\nfunc _ready():\n\tpass\n\t#get_node(\"DroneCam\").set_global_transform(Transform(Matrix3(), get_node(\"DroneCam\").get_global_transform().origin))\n\t#set_process(true)\n\nfunc _process(delta):\n\tvar cam = get_node(\"DroneCam\")\n\tvar globalCamRotMatrix = cam.get_global_transform().basis\n\tvar globalCamRot = Quat(cam.get_global_transform().basis)\n\tvar globalDroneRot = Quat(get_global_transform().basis)\n\tvar rotDiff = globalCamRot.dot(globalDroneRot)\n\tvar maxRotChange = PI*delta\n\tvar rotChange = min(maxRotChange, rotDiff)\n\tprint(rotChange)\n\tvar newBasis\n\tif (rotDiff == 0):\n\t\tnewBasis = Matrix3(globalDroneRot)\n\telse:\n\t\tnewBasis = Matrix3(globalDroneRot.slerp(globalCamRot, rotChange/rotDiff))\n\t#set_global_transform(Transform(newBasis, get_global_transform().origin))\n\t#translate(Vector3(0, 24*delta, 0))\n\t#global_translate(Vector3(0, -22*delta, 0))\n\t#set_rotation(get_global_transform())\n\t#set_rotation(cam.get_rotation())\n\t#set_global_transform(get_node(\"DroneCam\").get_transform())\n\t#cam.set_rotation(Vector3(0, 0, 0))\n\tcam.set_global_transform(Transform(globalCamRotMatrix, cam.get_global_transform().origin))\n\t#cam.rotate(c\n\t#translate(Vector3(0, 0.1, 0))"
+script/source = "extends Spatial\n\nfunc _ready():\n\tpass\n\t# get_node(\"DroneCam\").set_global_transform(Transform(Matrix3(), get_node(\"DroneCam\").get_global_transform().origin))\n\tset_process(true)\n\tset_fixed_process(true)\n\nfunc _process(delta):\n\tpass\n\t#var cam = get_node(\"DroneCam\")\n\t#var globalCamRotMatrix = cam.get_global_transform().basis\n\t#var globalCamRot = Quat(cam.get_global_transform().basis)\n\t#var globalDroneRot = Quat(get_global_transform().basis)\n\t#var rotDiff = globalCamRot.dot(globalDroneRot)\n\t#var maxRotChange = PI*delta\n\t#var rotChange = min(maxRotChange, rotDiff)\n\t#print(rotChange)\n\t#var newBasis\n\t#if (rotDiff == 0):\n\t#\tnewBasis = Matrix3(globalDroneRot)\n\t#else:\n\t#\tnewBasis = Matrix3(globalDroneRot.slerp(globalCamRot, rotChange/rotDiff))\n\t#set_global_transform(Transform(newBasis, get_global_transform().origin))\n\t#translate(Vector3(0, 24*delta, 0))\n\t#global_translate(Vector3(0, -22*delta, 0))\n\t#set_rotation(get_global_transform())\n\t#set_rotation(cam.get_rotation())\n\t#set_global_transform(get_node(\"DroneCam\").get_transform())\n\t#cam.set_rotation(Vector3(0, 0, 0))\n\t#cam.set_global_transform(Transform(globalCamRotMatrix, cam.get_global_transform().origin))\n\t#cam.rotate(c\n\t#translate(Vector3(0, 0.1, 0))\n\t\nfunc _fixed_process(delta):\n\tvar force =  Vector3(0, 9.8, 0) #.rotated(get_global_transform().basis)\n\t#get_node(\"..\").set_linear_velocity(get_node(\"..\").get_linear_velocity() + Vector3(0, 9.8*delta, 0))\n\tapply_impulse(Vector3(), force*delta)"
 
 [sub_resource type="Environment" id=3]
 
@@ -60,41 +60,16 @@ srgb/enabled = false
 
 extents = Vector3( 13.0507, 8.66335, 15.7747 )
 
+[sub_resource type="PlaneShape" id=6]
+
+plane = Plane( 0, 1, 0, 0 )
+
 [node name="Root" type="Node"]
 
-[node name="RigidBody 2" type="RigidBody" parent="."]
+[node name="TestCube" type="TestCube" parent="."]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 39.0138, -25.0887 )
-input/ray_pickable = true
-input/capture_on_drag = false
-shape_count = 1
-shapes/0/shape = SubResource( 1 )
-shapes/0/transform = Transform( 1, 0, 0, 0, 0.820009, 0.572351, 0, -0.572351, 0.820009, 0, 5.18022, 0 )
-shapes/0/trigger = false
-collision/layers = 1
-collision/mask = 1
-mode = 0
-mass = 1.0
-friction = 1.0
-bounce = 0.0
-gravity_scale = 1.0
-custom_integrator = false
-continuous_cd = false
-contacts_reported = 0
-contact_monitor = false
-sleeping = false
-can_sleep = true
-axis_lock = 0
-velocity/linear = Vector3( 0, 0, 0 )
-velocity/angular = Vector3( 0, 0, 0 )
-damp_override/linear = -1.0
-damp_override/angular = -1.0
-
-[node name="TestCube" type="TestCube" parent="RigidBody 2"]
-
-_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.89933, 14.8911 )
+transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 40.9131, -10.1976 )
 layers = 1
 geometry/visible = true
 geometry/material_override = null
@@ -113,12 +88,12 @@ geometry/baked_light_tex_id = 0
 [node name="Drone" type="RigidBody" parent="."]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, 0, 0, 0, 0.820009, 0.572351, 0, -0.572351, 0.820009, 0, 37.328, 0 )
+transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23.2329, 13.0824 )
 input/ray_pickable = true
 input/capture_on_drag = false
 shape_count = 1
-shapes/0/shape = SubResource( 1 )
-shapes/0/transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+shapes/0/shape = SubResource( 5 )
+shapes/0/transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.012, 0 )
 shapes/0/trigger = false
 collision/layers = 1
 collision/mask = 1
@@ -138,28 +113,27 @@ velocity/linear = Vector3( 0, 0, 0 )
 velocity/angular = Vector3( 0, 0, 0 )
 damp_override/linear = -1.0
 damp_override/angular = -1.0
-
-[node name="drone_greybox_1" parent="Drone" instance=ExtResource( 1 )]
-
-transform/local = Transform( 1, 0, 0, 0, 1, -2.98023e-08, 0, 2.98023e-08, 1, 0, -0.0882392, -0.0615843 )
 script/script = SubResource( 2 )
 
-[node name="DroneCam" type="Position3D" parent="Drone/drone_greybox_1"]
+[node name="DroneCam" type="Position3D" parent="Drone"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 0.25, 0, 0, 0, 0.25, -7.45058e-09, 0, 7.45058e-09, 0.25, 0.0234241, 1.57881, 1.66172 )
-script/script = ExtResource( 2 )
+transform/local = Transform( 0.25, 0, 0, 0, 0.25, -7.45058e-09, 0, 7.45058e-09, 0.25, 0.0234241, 0.748243, 2.32187 )
+script/script = ExtResource( 1 )
 camFieldOfView = 60.0
-camZNear = 0.1
+camZNear = 0.01
 camZFar = 500
 camEnvironment = SubResource( 3 )
 
 [node name="CollisionShape" type="CollisionShape" parent="Drone"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-shape = SubResource( 1 )
+transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.012, 0 )
+shape = SubResource( 5 )
 trigger = false
 _update_shape_index = 0
+
+[node name="drone_greybox_2" parent="Drone" instance=ExtResource( 2 )]
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 
@@ -169,7 +143,7 @@ layers = 1
 params/enabled = true
 params/editor_only = false
 params/bake_mode = 0
-params/energy = 1.0
+params/energy = 0.5
 colors/diffuse = Color( 1, 1, 1, 1 )
 colors/specular = Color( 1, 1, 1, 1 )
 shadow/shadow = false
@@ -190,10 +164,13 @@ shadow/zoffset_scale = 2.0
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 input/ray_pickable = true
 input/capture_on_drag = false
-shape_count = 1
+shape_count = 2
 shapes/0/shape = SubResource( 4 )
-shapes/0/transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 33.4933, 7.96991, 48.0595 )
+shapes/0/transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 31.7878, 7.96991, 48.0595 )
 shapes/0/trigger = false
+shapes/1/shape = SubResource( 6 )
+shapes/1/transform = Transform( 7.96564, 0, 0, 0, 7.96564, 0, 0, 0, 7.96564, 0, 0, 0 )
+shapes/1/trigger = false
 collision/layers = 1
 collision/mask = 1
 friction = 1.0
@@ -206,9 +183,17 @@ constant_angular_velocity = Vector3( 0, 0, 0 )
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 33.4933, 7.96991, 48.0595 )
+transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 31.7878, 7.96991, 48.0595 )
 shape = SubResource( 4 )
 trigger = false
 _update_shape_index = 0
+
+[node name="CollisionShape 2" type="CollisionShape" parent="StaticBody"]
+
+_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+transform/local = Transform( 7.96564, 0, 0, 0, 7.96564, 0, 0, 0, 7.96564, 0, 0, 0 )
+shape = SubResource( 6 )
+trigger = false
+_update_shape_index = 1
 
 
