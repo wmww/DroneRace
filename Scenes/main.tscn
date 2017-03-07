@@ -54,7 +54,7 @@ extents = Vector3( 0.14, 0.02, 0.14 )
 
 [sub_resource type="GDScript" id=3]
 
-script/source = "extends RigidBody\n\nexport var props = [\n\tVector3(1, 0, 1),\n\tVector3(-1, 0, 1),\n\tVector3(1, 0, -1),\n\tVector3(-1, 0, -1)\n\t]\n\nvar targetUpVec = Vector3(0, 1, 0)\n\nfunc _ready():\n\t# get_node(\"DroneCam\").set_global_transform(Transform(Matrix3(), get_node(\"DroneCam\").get_global_transform().origin))\n\tset_process(true)\n\tset_fixed_process(true)\n\tset_friction(0)\n\tset_angular_damp(2)\n\nfunc _process(delta):\n\tvar tiltAmount = 0.4\n\ttargetUpVec = Vector3(0, 1, 0)\n\t\n\tif (Input.is_key_pressed(KEY_UP)):\n\t\ttargetUpVec.z += tiltAmount\n\tif (Input.is_key_pressed(KEY_DOWN)):\n\t\ttargetUpVec.z -= tiltAmount\n\tif (Input.is_key_pressed(KEY_RIGHT)):\n\t\ttargetUpVec.x -= tiltAmount\n\tif (Input.is_key_pressed(KEY_LEFT)):\n\t\ttargetUpVec.x += tiltAmount\n\t\n\ttargetUpVec = targetUpVec.normalized()\n\t\n\t#set_axis_velocity\n\t#var cam = get_node(\"DroneCam\")\n\t#var globalCamRotMatrix = cam.get_global_transform().basis\n\t#var globalCamRot = Quat(cam.get_global_transform().basis)\n\t#var globalDroneRot = Quat(get_global_transform().basis)\n\t#var rotDiff = globalCamRot.dot(globalDroneRot)\n\t#var maxRotChange = PI*delta\n\t#var rotChange = min(maxRotChange, rotDiff)\n\t#print(rotChange)\n\t#var newBasis\n\t#if (rotDiff == 0):\n\t#\tnewBasis = Matrix3(globalDroneRot)\n\t#else:\n\t#\tnewBasis = Matrix3(globalDroneRot.slerp(globalCamRot, rotChange/rotDiff))\n\t#set_global_transform(Transform(newBasis, get_global_transform().origin))\n\t#translate(Vector3(0, 24*delta, 0))\n\t#global_translate(Vector3(0, -22*delta, 0))\n\t#set_rotation(get_global_transform())\n\t#set_rotation(cam.get_rotation())\n\t#set_global_transform(get_node(\"DroneCam\").get_transform())\n\t#cam.set_rotation(Vector3(0, 0, 0))\n\t#cam.set_global_transform(Transform(globalCamRotMatrix, cam.get_global_transform().origin))\n\t#cam.rotate(c\n\t#translate(Vector3(0, 0.1, 0))\n\t\n\t\nfunc _fixed_process(delta):\n\t#var propForce = get_global_transform().basis.y*4\n\t#var force =  Vector3(0, 9.8, 0) #.rotated(get_global_transform().basis)\n\t#get_node(\"..\").set_linear_velocity(get_node(\"..\").get_linear_velocity() + Vector3(0, 9.8*delta, 0))\n\t\n\t#apply_impulse(get_node(\"FL_prop\").get_global_transform().origin-get_global_transform().origin, Vector3(0, 10, 0)*delta)\n\t\n\t#apply_impulse(Vector3(), propForce*delta)\n\t#apply_impulse(Vector3(), propForce*delta)\n\t#apply_impulse(Vector3(), propForce*delta)\n\t#apply_impulse(Vector3(), propForce*delta)\n\t\n\t#apply_impulse(Vector3(0.1, 0.0, 0.1), propForce*delta)\n\t#apply_impulse(Vector3(0.1, 0.0, -0.1), propForce*delta)\n\t#apply_impulse(Vector3(-0.1, 0.0, 0.1), propForce*delta)\n\t#apply_impulse(Vector3(-0.1, 0.0, -0.1), propForce*delta)\n\t\n\tvar myOrigin = get_global_transform().origin\n\tvar myBasis = get_global_transform().basis\n\t\n\t# var propLocFL = get_node(\"FL_prop\").get_global_transform().origin-myOrigin\n\t# var propLocFR = get_node(\"FR_prop\").get_global_transform().origin-myOrigin\n\t# var propLocBL = get_node(\"BL_prop\").get_global_transform().origin-myOrigin\n\t# var propLocBR = get_node(\"BR_prop\").get_global_transform().origin-myOrigin\n\t\n\tvar propDist = 0.1\n\t\n\t#var propVecs = []\n\t\n\t#propVecs.append(Vector3(1, 0, 1)*myBasis.x + )\n\t#propVecs.append(( myBasis.x + myBasis.z).normalized())\n\t#propVecs.append((-myBasis.x + myBasis.z).normalized())\n\t#propVecs.append(( myBasis.x - myBasis.z).normalized())\n\t#propVecs.append((-myBasis.x - myBasis.z).normalized())\n\t\n\tfor i in props:\n\t\tvar propLoc = i.x*myBasis.x + i.y*myBasis.y + i.z*myBasis.z\n\t\tvar error = acos(targetUpVec.dot(propLoc.normalized()))-PI/2;\n\t\tvar force = 2.6+error*0.08\n\t\tapply_impulse(propLoc, myBasis.y*force*delta)\n\t\n\t"
+script/source = "extends RigidBody\n\nexport var props = [\n\tVector3(1, 0, 1),\n\tVector3(-1, 0, 1),\n\tVector3(1, 0, -1),\n\tVector3(-1, 0, -1)\n\t]\n\nvar targetUpVec = Vector3(0, 1, 0)\n\nfunc _ready():\n\t# get_node(\"DroneCam\").set_global_transform(Transform(Matrix3(), get_node(\"DroneCam\").get_global_transform().origin))\n\tset_process(true)\n\tset_fixed_process(true)\n\t#set_friction(0)\n\t#set_angular_damp(2)\n\nfunc _process(delta):\n\tvar tiltAmount = 0.3\n\tvar myBasis = get_global_transform().basis\n\ttargetUpVec = Vector3(0, 1, 0)\n\t\n\tif (Input.is_key_pressed(KEY_UP)):\n\t\ttargetUpVec += myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_DOWN)):\n\t\ttargetUpVec -= myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_RIGHT)):\n\t\ttargetUpVec -= myBasis.x*tiltAmount\n\tif (Input.is_key_pressed(KEY_LEFT)):\n\t\ttargetUpVec += myBasis.x*tiltAmount\n\t\n\ttargetUpVec = targetUpVec.normalized()\n\t\n\tvar cam = get_node(\"../TrackingCam\")\n\tcam.look_at(get_global_transform().origin, Vector3(0, 1, 0))\n\tvar distToCam = (cam.get_global_transform().origin - get_global_transform().origin).length()\n\tvar fov = 20/sqrt(distToCam)\n\tfov = min(fov, 100)\n\tfov = max(fov, 10)\n\tcam.set_perspective(fov, cam.get_znear(), cam.get_zfar())\n\t\n\t#set_axis_velocity\n\t#var cam = get_node(\"DroneCam\")\n\t#var globalCamRotMatrix = cam.get_global_transform().basis\n\t#var globalCamRot = Quat(cam.get_global_transform().basis)\n\t#var globalDroneRot = Quat(get_global_transform().basis)\n\t#var rotDiff = globalCamRot.dot(globalDroneRot)\n\t#var maxRotChange = PI*delta\n\t#var rotChange = min(maxRotChange, rotDiff)\n\t#print(rotChange)\n\t#var newBasis\n\t#if (rotDiff == 0):\n\t#\tnewBasis = Matrix3(globalDroneRot)\n\t#else:\n\t#\tnewBasis = Matrix3(globalDroneRot.slerp(globalCamRot, rotChange/rotDiff))\n\t#set_global_transform(Transform(newBasis, get_global_transform().origin))\n\t#translate(Vector3(0, 24*delta, 0))\n\t#global_translate(Vector3(0, -22*delta, 0))\n\t#set_rotation(get_global_transform())\n\t#set_rotation(cam.get_rotation())\n\t#set_global_transform(get_node(\"DroneCam\").get_transform())\n\t#cam.set_rotation(Vector3(0, 0, 0))\n\t#cam.set_global_transform(Transform(globalCamRotMatrix, cam.get_global_transform().origin))\n\t#cam.rotate(c\n\t#translate(Vector3(0, 0.1, 0))\n\t\n\t\nfunc _fixed_process(delta):\n\tvar myOrigin = get_global_transform().origin\n\tvar myBasis = get_global_transform().basis\n\t\n\tvar propDist = 0.1\n\t\n\tfor i in props:\n\t\tvar propLoc = i.x*myBasis.x + i.y*myBasis.y + i.z*myBasis.z\n\t\tvar error = acos(targetUpVec.dot(propLoc.normalized()))-PI/2;\n\t\tvar force = 2.6+error*0.08\n\t\tapply_impulse(propLoc, myBasis.y*force*delta)\n\t\n\t"
 
 [sub_resource type="BoxShape" id=4]
 
@@ -85,16 +85,32 @@ geometry/visible_in_all_rooms = false
 geometry/use_baked_light = false
 geometry/baked_light_tex_id = 0
 
-[node name="DroneCam" type="Position3D" parent="."]
+[node name="VR_Cam" type="Position3D" parent="."]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( -0.25, 0, -8.14602e-08, 0, 0.249999, 0, 8.14603e-08, 0, -0.249999, 25.3648, 1.46116, 22.8747 )
 script/script = ExtResource( 1 )
+enabled = false
 camFieldOfView = 60.0
 camZNear = 0.002
 camZFar = 500
 eyeDist = 0.06
 camEnvironment = SubResource( 1 )
+
+[node name="TrackingCam" type="Camera" parent="."]
+
+_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.6392, 2.31856, 12.2966 )
+projection = 0
+fov = 60.0
+near = 0.1
+far = 100.0
+keep_aspect = 1
+current = false
+visible_layers = 1048575
+environment = null
+h_offset = 0.0
+v_offset = 0.0
 
 [node name="Drone" type="RigidBody" parent="."]
 
@@ -168,7 +184,7 @@ input/ray_pickable = true
 input/capture_on_drag = false
 shape_count = 2
 shapes/0/shape = SubResource( 4 )
-shapes/0/transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30.5912, 7.96991, 49.9202 )
+shapes/0/transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30.5912, 7.96991, 49.8739 )
 shapes/0/trigger = false
 shapes/1/shape = SubResource( 5 )
 shapes/1/transform = Transform( 7.96564, 0, 0, 0, 7.96564, 0, 0, 0, 7.96564, 0, 0, 0 )
@@ -185,7 +201,7 @@ constant_angular_velocity = Vector3( 0, 0, 0 )
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30.5912, 7.96991, 49.9202 )
+transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30.5912, 7.96991, 49.8739 )
 shape = SubResource( 4 )
 trigger = false
 _update_shape_index = 0

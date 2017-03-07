@@ -14,6 +14,7 @@ extends Position3D
 
 # cameras are automatically moved to the traansform of their mounts each cycle
 
+export var enabled = true
 export var camFieldOfView = 60.0
 export var camZNear = 0.1
 export var camZFar = 100
@@ -71,10 +72,12 @@ class EyeView:
 
 func _ready():
 	#OS.set_window_fullscreen(true)
-	leftEye=EyeView.new(self, EyeView.LEFT)
-	rightEye=EyeView.new(self, EyeView.RIGHT)
-	
-	set_process(true)
+	if (enabled):
+		leftEye=EyeView.new(self, EyeView.LEFT)
+		rightEye=EyeView.new(self, EyeView.RIGHT)
+		set_process(true)
+	else:
+		set_process(false)
 
 func _process(delta):
 	rotateByGyro(delta)
