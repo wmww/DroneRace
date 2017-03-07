@@ -14,9 +14,10 @@ extends Position3D
 
 # cameras are automatically moved to the traansform of their mounts each cycle
 
-export var camFieldOfView=60.0
-export var camZNear=0.1
-export var camZFar=100
+export var camFieldOfView = 60.0
+export var camZNear = 0.1
+export var camZFar = 100
+export var eyeDist = 0.06
 export(Environment) var camEnvironment
 
 var leftEye
@@ -25,8 +26,8 @@ var rightEye
 var prevMousePos
 
 class EyeView:
-	const LEFT=1
-	const RIGHT=2
+	const LEFT = 1
+	const RIGHT = 2
 	var viewportArea
 	var viewport
 	var camera
@@ -46,7 +47,7 @@ class EyeView:
 		cameraMount=Spatial.new()
 		root.add_child(cameraMount)
 		setViewportPosition()
-		setCameraMount()
+		setCameraMount(root.eyeDist)
 	
 	func setViewportPosition():
 		var vpSize=OS.get_window_size()
@@ -57,12 +58,12 @@ class EyeView:
 			vpOrigin.x=viewportArea.get_size().x
 		viewportArea.set_pos(vpOrigin)
 	
-	func setCameraMount():
+	func setCameraMount(eyeDist):
 		var offset
 		if eyeSide==LEFT:
-			offset=-1
+			offset = -eyeDist/2
 		else:
-			offset=1
+			offset = eyeDist/2
 		cameraMount.set_translation(Vector3(offset, 0, -1))
 	
 	func update():
