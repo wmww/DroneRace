@@ -15,6 +15,7 @@ extends Position3D
 # cameras are automatically moved to the traansform of their mounts each cycle
 
 export var enabled = true
+export var useFixedProcess = false
 export var camFieldOfView = 60.0
 export var camZNear = 0.1
 export var camZFar = 100
@@ -25,6 +26,69 @@ var leftEye
 var rightEye
 
 var prevMousePos
+
+func _ready():
+	#OS.set_window_fullscreen(true)
+	if (enabled):
+		setup()
+	else:
+		disable()
+
+func setup():
+	leftEye=EyeView.new(self, EyeView.LEFT)
+	rightEye=EyeView.new(self, EyeView.RIGHT)
+	set_process(!useFixedProcess)
+	set_fixed_process(useFixedProcess)
+
+func disable():
+	leftEye = null
+	rightEye = null
+	set_process(false)
+	set_fixed_process(false)
+
+func _process(delta):
+	update(delta)
+
+func _fixed_process(delta):
+	update(delta)
+
+func update(delta):
+	rotateByGyro(delta)
+	rotateByMouse(delta)
+	#rotateByAccl(delta)
+	
+	leftEye.update()
+	rightEye.update()
+
+func rotateByGyro(delta):
+	var gyro = Input.get_gyroscope()
+	rotate(Vector3(1, 0, 0), -delta*gyro.x)
+	rotate(Vector3(0, 1, 0), delta*gyro.y)
+	rotate(Vector3(0, 0, 1), -delta*gyro.z)
+
+func rotateByAccl(delta):
+	var accl=Input.get_accelerometer()
+	set_rotation(accl)
+	
+func rotateByMouse(delta):
+	
+	var mousePressed=Input.is_mouse_button_pressed(BUTTON_LEFT)
+	var altPressed=Input.is_key_pressed(KEY_ALT)
+	
+	if (mousePressed || altPressed):
+		var mousePos=get_viewport().get_mouse_pos()
+		mousePos*=2.0
+		mousePos/=get_viewport().get_rect().size.x
+		mousePos-=Vector2(1, 1)
+		if (prevMousePos!=null):
+			var deltaMouse=mousePos-prevMousePos
+			deltaMouse*=0.9
+			global_rotate(Vector3(0, 1, 0), -deltaMouse.x)
+			rotate_x(-deltaMouse.y)
+		prevMousePos=mousePos
+	else:
+		prevMousePos=null
+
 
 class EyeView:
 	const LEFT = 1
@@ -69,48 +133,3 @@ class EyeView:
 	
 	func update():
 		camera.set_global_transform(cameraMount.get_global_transform())
-
-func _ready():
-	#OS.set_window_fullscreen(true)
-	if (enabled):
-		leftEye=EyeView.new(self, EyeView.LEFT)
-		rightEye=EyeView.new(self, EyeView.RIGHT)
-		set_process(true)
-	else:
-		set_process(false)
-
-func _process(delta):
-	rotateByGyro(delta)
-	RotateByMouse(delta)
-	#rotateByAccl(delta)
-	leftEye.update()
-	rightEye.update()
-
-func rotateByGyro(delta):
-	var gyro = Input.get_gyroscope()
-	rotate(Vector3(1, 0, 0), -delta*gyro.x)
-	rotate(Vector3(0, 1, 0), delta*gyro.y)
-	rotate(Vector3(0, 0, 1), -delta*gyro.z)
-
-func rotateByAccl(delta):
-	var accl=Input.get_accelerometer()
-	set_rotation(accl)
-	
-func RotateByMouse(delta):
-	
-	var mousePressed=Input.is_mouse_button_pressed(BUTTON_LEFT)
-	var altPressed=Input.is_key_pressed(KEY_ALT)
-	
-	if (mousePressed || altPressed):
-		var mousePos=get_viewport().get_mouse_pos()
-		mousePos*=2.0
-		mousePos/=get_viewport().get_rect().size.x
-		mousePos-=Vector2(1, 1)
-		if (prevMousePos!=null):
-			var deltaMouse=mousePos-prevMousePos
-			deltaMouse*=0.9
-			global_rotate(Vector3(0, 1, 0), -deltaMouse.x)
-			rotate_x(-deltaMouse.y)
-		prevMousePos=mousePos
-	else:
-		prevMousePos=null
