@@ -75,7 +75,7 @@ func _fixed_process(delta):
 		var propLoc = props[i].x*myBasis.x + props[i].y*myBasis.y + props[i].z*myBasis.z
 		var error = acos(targetUpVec.dot(propLoc.normalized()))-PI/2;
 		var pidOut = propPidControllers[i].iter(error)
-		var force = 2.6+pidOut
+		var force = 2.8+pidOut
 		apply_impulse(propLoc, myBasis.y*force*delta)
 	
 	var rotCurrent = atan2(-myBasis.z.x, myBasis.z.z)

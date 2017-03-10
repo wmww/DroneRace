@@ -57,7 +57,7 @@ extents = Vector3( 0.14, 0.02, 0.14 )
 
 [sub_resource type="GDScript" id=4]
 
-script/source = "extends Position3D\n\nexport (NodePath) var cameraNode\n\nfunc _ready():\n\tif !cameraNode:\n\t\tprint(\"please assign the cam property on the cam controller to a camera\")\n\tset_fixed_process(true)\n\nfunc _fixed_process(delta):\n\tif !cameraNode:\n\t\treturn\n\t\n\tvar cam = get_node(cameraNode)\n\tvar new = cam.get_global_transform()\n\tnew.origin = get_global_transform().origin\n\tcam.set_global_transform(new)\n"
+script/source = "extends Position3D\n\nexport (NodePath) var cameraNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\n\nvar cam = null\nvar camDelta = Vector3()\nonready var camPID = PID.new(0.005, 0, 0.2)\n\nfunc _ready():\n\tif cameraNode:\n\t\tcam = get_node(cameraNode)\n\t\n\tif !cam:\n\t\tprint(\"please assign a valid node to camera node in cam controller\")\n\t\tcam = Spatial.new()\n\t\n\tmoveInstantly(1)\n\t\n\tset_fixed_process(true)\n\nfunc _fixed_process(delta):\n\t#moveInstantly(delta)\n\t#moveWithExponentialDecay(delta)\n\tmoveCamWithPID(delta)\n\nfunc moveInstantly(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = get_global_transform().origin\n\tcam.set_global_transform(new)\n\nfunc moveWithExponentialDecay(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = new.origin.linear_interpolate(get_global_transform().origin, delta*15)\n\tcam.set_global_transform(new)\n\nfunc moveCamWithPID(delta):\n\tvar error = get_global_transform().origin-cam.get_global_transform().origin\n\terror /= delta\n\tvar pidOut = camPID.iter(error)\n\tcamDelta += pidOut*delta\n\tcam.global_translate(camDelta)\n"
 
 [sub_resource type="BoxShape" id=5]
 
@@ -152,7 +152,7 @@ _update_shape_index = 0
 [node name="CamController" type="Position3D" parent="Drone"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, -3.19222e-08, 3.15843e-09, 3.19223e-08, 0.980614, -0.195937, 3.15808e-09, 0.195937, 0.980614, -4.18123e-08, 0.104, 0.256642 )
+transform/local = Transform( 1, -6.05154e-08, 1.16565e-08, 6.05155e-08, 0.928453, -0.371441, 1.16561e-08, 0.371441, 0.928453, -1.01551e-07, -0.0174706, 0.623315 )
 script/script = SubResource( 4 )
 cameraNode = NodePath("../../VR_Cam")
 
