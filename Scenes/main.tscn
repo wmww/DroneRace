@@ -1,9 +1,14 @@
 [gd_scene load_steps=12 format=1]
 
-[ext_resource path="res://Scripts/vr_cam.gd" type="Script" id=1]
-[ext_resource path="res://Textures/cubemap0_blue/cubemap.cube" type="CubeMap" id=2]
-[ext_resource path="res://Scenes/drone_greybox_2.scn" type="PackedScene" id=3]
-[ext_resource path="res://Scenes/area_greybox_0.scn" type="PackedScene" id=4]
+[ext_resource path="res://Scripts/drone_control.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/vr_cam.gd" type="Script" id=2]
+[ext_resource path="res://Textures/cubemap0_blue/cubemap.cube" type="CubeMap" id=3]
+[ext_resource path="res://Scenes/drone_greybox_2.scn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/area_greybox_0.scn" type="PackedScene" id=5]
+
+[sub_resource type="BoxShape" id=2]
+
+extents = Vector3( 0.14, 0.02, 0.14 )
 
 [sub_resource type="Environment" id=1]
 
@@ -13,7 +18,7 @@ ambient_light/energy = 0.47
 fxaa/enabled = false
 background/mode = 4
 background/color = Color( 0.808594, 0.982056, 1, 1 )
-background/cubemap = ExtResource( 2 )
+background/cubemap = ExtResource( 3 )
 background/energy = 1.0
 background/scale = 1.0
 background/glow = 0.0
@@ -49,14 +54,6 @@ bcs/brightness = 1.0
 bcs/contrast = 1.0
 bcs/saturation = 1.0
 srgb/enabled = false
-
-[sub_resource type="BoxShape" id=2]
-
-extents = Vector3( 0.14, 0.02, 0.14 )
-
-[sub_resource type="GDScript" id=3]
-
-script/source = "extends RigidBody\n\nexport var props = [\n\tVector3(1, 0, 1),\n\tVector3(-1, 0, 1),\n\tVector3(1, 0, -1),\n\tVector3(-1, 0, -1)\n\t]\n\nexport (NodePath) var controllerNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\n\nvar propPidControllers = []\nvar rotPidController\nvar targetUpVec = Vector3(0, 1, 0)\nvar rotTarget = 0\n\nfunc _ready():\n\t\n\tfor i in range(0, props.size()):\n\t\tpropPidControllers.append(PID.new(0.8, 0, 4))\n\trotPidController = PID.new(0.6, 0, 12)\n\tset_process(true)\n\tset_fixed_process(true)\n\tset_linear_damp(0.5)\n\t#set_friction(0)\n\t#set_angular_damp(2)\n\nfunc _process(delta):\n\tif Input.is_key_pressed(KEY_Q):\n\t\tget_tree().quit()\n\t\n\t#controlByKb()\n\t#controlByControllerNode()\n\t\nfunc controlByKb():\n\tvar tiltAmount = 0.4\n\tvar myBasis = get_global_transform().basis\n\ttargetUpVec = Vector3(0, 1, 0)\n\t\n\tif (Input.is_key_pressed(KEY_UP)):\n\t\ttargetUpVec -= myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_DOWN)):\n\t\ttargetUpVec += myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_RIGHT)):\n\t\ttargetUpVec += myBasis.x*tiltAmount\n\tif (Input.is_key_pressed(KEY_LEFT)):\n\t\ttargetUpVec -= myBasis.x*tiltAmount\n\t\n\ttargetUpVec = targetUpVec.normalized()\n\nfunc controlByControllerNode():\n\tif !controllerNode:\n\t\tprint(\"controllerNode null\")\n\t\treturn\n\t\n\tvar control = get_node(controllerNode).get_global_transform().basis\n\ttargetUpVec = control.y\n\tvar rot = Vector3(0, 1, 0).cross(control.x)\n\trotTarget = atan2(rot.x, -rot.z)\n\nfunc _fixed_process(delta):\n\tcontrolByControllerNode()\n\t\n\tvar myOrigin = get_global_transform().origin\n\tvar myBasis = get_global_transform().basis\n\t\n\tvar propDist = 0.1\n\t\n\tfor i in range(0, props.size()):\n\t\tvar propLoc = props[i].x*myBasis.x + props[i].y*myBasis.y + props[i].z*myBasis.z\n\t\tvar error = acos(targetUpVec.dot(propLoc.normalized()))-PI/2;\n\t\tvar pidOut = propPidControllers[i].iter(error)\n\t\tvar force = 2.6+pidOut\n\t\tapply_impulse(propLoc, myBasis.y*force*delta)\n\t\n\tvar rotCurrent = atan2(-myBasis.z.x, myBasis.z.z)\n\tvar rotError = rotTarget-rotCurrent\n\tvar rotMove = rotPidController.iter(rotError)\n\t\n\tapply_impulse(myOrigin + myBasis.z, -myBasis.x*rotMove*delta)\n\tapply_impulse(myOrigin - myBasis.z, myBasis.x*rotMove*delta)\n\t\n\tprint(rad2deg(rotMove))"
 
 [sub_resource type="GDScript" id=4]
 
@@ -95,25 +92,6 @@ geometry/visible_in_all_rooms = false
 geometry/use_baked_light = false
 geometry/baked_light_tex_id = 0
 
-[node name="VR_Cam" type="Position3D" parent="."]
-
-_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0652485, 1.08268, 5.83031 )
-script/script = ExtResource( 1 )
-enabled = true
-useFixedProcess = true
-camFieldOfView = 60.0
-camZNear = 0.002
-camZFar = 500
-eyeDist = 0.06
-eyeOffset = Vector3( 0, 0, 0 )
-camEnvironment = SubResource( 1 )
-
-[node name="DroneControl" type="Position3D" parent="VR_Cam"]
-
-_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, 0, 0, 0, 0.963334, -0.268306, 0, 0.268306, 0.963334, 0, 0, 0 )
-
 [node name="Drone" type="RigidBody" parent="."]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
@@ -142,9 +120,28 @@ velocity/linear = Vector3( 0, 0, 0 )
 velocity/angular = Vector3( 0, 0, 0 )
 damp_override/linear = -1.0
 damp_override/angular = -1.0
-script/script = SubResource( 3 )
+script/script = ExtResource( 1 )
 props = [ Vector3( 1, 0, 1 ), Vector3( -1, 0, 1 ), Vector3( 1, 0, -1 ), Vector3( -1, 0, -1 ) ]
-controllerNode = NodePath("../VR_Cam/DroneControl")
+controllerNode = NodePath("")
+
+[node name="VR_Cam" type="Position3D" parent="Drone"]
+
+_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0652485, 0.08268, 5.83031 )
+script/script = ExtResource( 2 )
+enabled = true
+useFixedProcess = true
+camFieldOfView = 60.0
+camZNear = 0.002
+camZFar = 500
+eyeDist = 0.06
+eyeOffset = Vector3( 0, 0, 0 )
+camEnvironment = SubResource( 1 )
+
+[node name="DroneControl" type="Position3D" parent="Drone/VR_Cam"]
+
+_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+transform/local = Transform( 1, 0, 0, 0, 0.963334, -0.268306, 0, 0.268306, 0.963334, 0, 0, 0 )
 
 [node name="CollisionShape" type="CollisionShape" parent="Drone"]
 
@@ -154,14 +151,14 @@ shape = SubResource( 2 )
 trigger = false
 _update_shape_index = 0
 
-[node name="drone_greybox_2" parent="Drone" instance=ExtResource( 3 )]
+[node name="drone_greybox_2" parent="Drone" instance=ExtResource( 4 )]
 
 [node name="CamController" type="Position3D" parent="Drone"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.237173, 0.538271 )
 script/script = SubResource( 4 )
-cameraNode = NodePath("../../VR_Cam")
+cameraNode = NodePath("../VR_Cam")
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 
@@ -209,7 +206,7 @@ bounce = 0.0
 constant_linear_velocity = Vector3( 0, 0, 0 )
 constant_angular_velocity = Vector3( 0, 0, 0 )
 
-[node name="area_greybox_0" parent="StaticBody" instance=ExtResource( 4 )]
+[node name="area_greybox_0" parent="StaticBody" instance=ExtResource( 5 )]
 
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
 
