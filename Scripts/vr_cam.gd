@@ -19,7 +19,8 @@ export var useFixedProcess = false
 export var camFieldOfView = 60.0
 export var camZNear = 0.1
 export var camZFar = 100
-export var eyeDist = 0.06
+export var eyeDist = 0.06 # the distance between the two eyes
+export var eyeOffset = Vector3(0.0, 0.0, 0.0) # the offset of each eye (in local cords) from the pivot point
 export(Environment) var camEnvironment
 
 var leftEye
@@ -112,7 +113,7 @@ class EyeView:
 		cameraMount=Spatial.new()
 		root.add_child(cameraMount)
 		setViewportPosition()
-		setCameraMount(root.eyeDist)
+		setCameraMount(root.eyeDist, root.eyeOffset)
 	
 	func setViewportPosition():
 		var vpSize=OS.get_window_size()
@@ -123,13 +124,13 @@ class EyeView:
 			vpOrigin.x=viewportArea.get_size().x
 		viewportArea.set_pos(vpOrigin)
 	
-	func setCameraMount(eyeDist):
-		var offset
+	func setCameraMount(eyeDist, eyeOffset):
+		var offset = eyeOffset
 		if eyeSide==LEFT:
-			offset = -eyeDist/2
+			offset.x -= eyeDist/2.0
 		else:
-			offset = eyeDist/2
-		cameraMount.set_translation(Vector3(offset, 0, -1))
+			offset.x += eyeDist/2.0
+		cameraMount.set_translation(offset)
 	
 	func update():
 		camera.set_global_transform(cameraMount.get_global_transform())
