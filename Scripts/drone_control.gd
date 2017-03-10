@@ -8,6 +8,7 @@ export var props = [
 	]
 
 export (NodePath) var controllerNode
+export (NodePath) var offsetNode
 
 const PID = preload("../Scripts/PID.gd")
 
@@ -56,6 +57,8 @@ func controlByControllerNode():
 		return
 	
 	var control = get_node(controllerNode).get_global_transform().basis
+	control *= get_node(offsetNode).get_transform().basis.inverse()
+	
 	targetUpVec = control.y
 	var rot = Vector3(0, 1, 0).cross(control.x)
 	rotTarget = atan2(rot.x, -rot.z)
