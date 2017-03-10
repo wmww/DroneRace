@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=1]
+[gd_scene load_steps=13 format=1]
 
 [ext_resource path="res://Scripts/vr_cam.gd" type="Script" id=1]
 [ext_resource path="res://Textures/cubemap0_blue/cubemap.cube" type="CubeMap" id=2]
@@ -60,11 +60,7 @@ extents = Vector3( 0.14, 0.02, 0.14 )
 
 [sub_resource type="GDScript" id=4]
 
-script/source = "extends RigidBody\n\nexport var props = [\n\tVector3(1, 0, 1),\n\tVector3(-1, 0, 1),\n\tVector3(1, 0, -1),\n\tVector3(-1, 0, -1)\n\t]\n\nexport (NodePath) var controllerNode\n\nvar targetUpVec = Vector3(0, 1, 0)\n\nfunc _ready():\n\tget_node(\"PID\").setup(4)\n\t# get_node(\"DroneCam\").set_global_transform(Transform(Matrix3(), get_node(\"DroneCam\").get_global_transform().origin))\n\tset_process(true)\n\tset_fixed_process(true)\n\tset_linear_damp(0.5)\n\t#set_friction(0)\n\t#set_angular_damp(2)\n\nfunc _process(delta):\n\tif Input.is_key_pressed(KEY_Q):\n\t\tget_tree().quit()\n\t\n\t#controlByKb()\n\tcontrolByControllerNode()\n\t\nfunc controlByKb():\n\tvar tiltAmount = 0.4\n\tvar myBasis = get_global_transform().basis\n\ttargetUpVec = Vector3(0, 1, 0)\n\t\n\tif (Input.is_key_pressed(KEY_UP)):\n\t\ttargetUpVec -= myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_DOWN)):\n\t\ttargetUpVec += myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_RIGHT)):\n\t\ttargetUpVec += myBasis.x*tiltAmount\n\tif (Input.is_key_pressed(KEY_LEFT)):\n\t\ttargetUpVec -= myBasis.x*tiltAmount\n\t\n\ttargetUpVec = targetUpVec.normalized()\n\nfunc controlByControllerNode():\n\tif !controllerNode:\n\t\tprint(\"controllerNode null\")\n\t\treturn\n\t\n\ttargetUpVec = get_node(controllerNode).get_global_transform().basis.y\n\nfunc _fixed_process(delta):\n\tvar myOrigin = get_global_transform().origin\n\tvar myBasis = get_global_transform().basis\n\t\n\tvar propDist = 0.1\n\t\n\tfor i in range(0, props.size()):\n\t\tvar propLoc = props[i].x*myBasis.x + props[i].y*myBasis.y + props[i].z*myBasis.z\n\t\tvar error = acos(targetUpVec.dot(propLoc.normalized()))-PI/2;\n\t\tvar pidOut = get_node(\"PID\").controllers[i].iter(error, targetUpVec)\n\t\tvar force = 2.6+pidOut\n\t\tapply_impulse(propLoc, myBasis.y*force*delta)\n\t\n\t"
-
-[sub_resource type="GDScript" id=5]
-
-script/source = "\nvar controllers = []\n\nfunc setup(controllerNum):\n\tfor i in range(0, controllerNum):\n\t\t#example: 3.0,0.4,1.2\n\t\tcontrollers.push_back(PIDController.new(0.8, 0, 4))\n\nclass PIDController:\n\t\n\tvar Kp\n\tvar Ki\n\tvar Kd\n\tvar Derivator\n\tvar Integrator\n\tvar Integrator_max\n\tvar Integrator_min\n\tvar lastTarget = null\n\t\n\tfunc _init(P, I, D):\n\t\tKp=P\n\t\tKi=I\n\t\tKd=D\n\t\tDerivator=0\n\t\tIntegrator=0\n\t\t#Integrator_max=500\n\t\t#Integrator_min=-500\n\n\t# target is used only to know if to reset\n\tfunc iter(error, target):\n\t\t#if target != lastTarget:\n\t\t\t#reset()\n\t\t\t#print(\"reset called\")\n\t\t\t#lastTarget = target\n\t\tvar P_value = Kp * error\n\t\tvar D_value = Kd * ( error - Derivator)\n\t\tDerivator = error\n\t\t\n\t\t#Integrator = Integrator + error\n\n\t\t#if Integrator > Integrator_max:\n\t\t#\tIntegrator = Integrator_max\n\t\t#elif Integrator < Integrator_min:\n\t\t#\tIntegrator = Integrator_min\n\n\t\tvar I_value = 0 # Integrator * Ki\n\n\t\tvar out = P_value + I_value + D_value\n\n\t\treturn out\n\n\tfunc reset():\n\t\tIntegrator=0\n\t\tDerivator=0"
+script/source = "extends RigidBody\n\nexport var props = [\n\tVector3(1, 0, 1),\n\tVector3(-1, 0, 1),\n\tVector3(1, 0, -1),\n\tVector3(-1, 0, -1)\n\t]\n\nexport (NodePath) var controllerNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\nvar pidControllers = []\nvar targetUpVec = Vector3(0, 1, 0)\n\nfunc _ready():\n\tfor i in range(0, props.size()):\n\t\tpidControllers.append(PID.new(0.8, 0, 4))\n\tset_process(true)\n\tset_fixed_process(true)\n\tset_linear_damp(0.5)\n\t#set_friction(0)\n\t#set_angular_damp(2)\n\nfunc _process(delta):\n\tif Input.is_key_pressed(KEY_Q):\n\t\tget_tree().quit()\n\t\n\t#controlByKb()\n\t#controlByControllerNode()\n\t\nfunc controlByKb():\n\tvar tiltAmount = 0.4\n\tvar myBasis = get_global_transform().basis\n\ttargetUpVec = Vector3(0, 1, 0)\n\t\n\tif (Input.is_key_pressed(KEY_UP)):\n\t\ttargetUpVec -= myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_DOWN)):\n\t\ttargetUpVec += myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_RIGHT)):\n\t\ttargetUpVec += myBasis.x*tiltAmount\n\tif (Input.is_key_pressed(KEY_LEFT)):\n\t\ttargetUpVec -= myBasis.x*tiltAmount\n\t\n\ttargetUpVec = targetUpVec.normalized()\n\nfunc controlByControllerNode():\n\tif !controllerNode:\n\t\tprint(\"controllerNode null\")\n\t\treturn\n\t\n\ttargetUpVec = get_node(controllerNode).get_global_transform().basis.y\n\nfunc _fixed_process(delta):\n\tcontrolByControllerNode()\n\t\n\tvar myOrigin = get_global_transform().origin\n\tvar myBasis = get_global_transform().basis\n\t\n\tvar propDist = 0.1\n\t\n\tfor i in range(0, props.size()):\n\t\tvar propLoc = props[i].x*myBasis.x + props[i].y*myBasis.y + props[i].z*myBasis.z\n\t\tvar error = acos(targetUpVec.dot(propLoc.normalized()))-PI/2;\n\t\tvar pidOut = pidControllers[i].iter(error)\n\t\tvar force = 2.6+pidOut\n\t\tapply_impulse(propLoc, myBasis.y*force*delta)\n\t\n\t"
 
 [sub_resource type="GDScript" id=6]
 
@@ -109,7 +105,7 @@ _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5.08302, 1.08268, 1.79628 )
 script/script = ExtResource( 1 )
 enabled = true
-useFixedProcess = false
+useFixedProcess = true
 camFieldOfView = 60.0
 camZNear = 0.002
 camZFar = 500
@@ -175,10 +171,6 @@ trigger = false
 _update_shape_index = 0
 
 [node name="drone_greybox_2" parent="Drone" instance=ExtResource( 3 )]
-
-[node name="PID" type="Node" parent="Drone"]
-
-script/script = SubResource( 5 )
 
 [node name="CamController" type="Position3D" parent="Drone"]
 
