@@ -2,8 +2,9 @@
 
 [ext_resource path="res://Scripts/vr_cam.gd" type="Script" id=1]
 [ext_resource path="res://Textures/cubemap0_blue/cubemap.cube" type="CubeMap" id=2]
-[ext_resource path="res://Scenes/drone_greybox_2.scn" type="PackedScene" id=3]
-[ext_resource path="res://Scenes/area_greybox_0.scn" type="PackedScene" id=4]
+[ext_resource path="res://Scripts/cam_tracker.gd" type="Script" id=3]
+[ext_resource path="res://Scenes/drone_greybox_2.scn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/area_greybox_0.scn" type="PackedScene" id=5]
 
 [sub_resource type="Environment" id=1]
 
@@ -50,17 +51,13 @@ bcs/contrast = 1.0
 bcs/saturation = 1.0
 srgb/enabled = false
 
-[sub_resource type="GDScript" id=2]
-
-script/source = "extends Camera\n\nexport var enabled = true\nexport (NodePath) var target\n\nfunc _ready():\n\t\n\tif !enabled:\n\t\tqueue_free()\n\t\n\tif !target:\n\t\tprint(\"please give tracking camera a target\")\n\t\n\tset_process(true)\n\t\nfunc _process(delta):\n\tif !target:\n\t\treturn\n\t\n\tvar targetObj = get_node(target)\n\tlook_at(targetObj.get_global_transform().origin, Vector3(0, 1, 0))\n\tvar distToTarget = (get_global_transform().origin - targetObj.get_global_transform().origin).length()\n\tvar fov = 50/sqrt(distToTarget)\n\tfov = min(fov, 100)\n\tfov = max(fov, 10)\n\tset_perspective(fov, get_znear(), get_zfar())\n\t\n"
-
 [sub_resource type="BoxShape" id=3]
 
 extents = Vector3( 0.14, 0.02, 0.14 )
 
 [sub_resource type="GDScript" id=4]
 
-script/source = "extends RigidBody\n\nexport var props = [\n\tVector3(1, 0, 1),\n\tVector3(-1, 0, 1),\n\tVector3(1, 0, -1),\n\tVector3(-1, 0, -1)\n\t]\n\nexport (NodePath) var controllerNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\nvar pidControllers = []\nvar targetUpVec = Vector3(0, 1, 0)\n\nfunc _ready():\n\tfor i in range(0, props.size()):\n\t\tpidControllers.append(PID.new(0.8, 0, 4))\n\tset_process(true)\n\tset_fixed_process(true)\n\tset_linear_damp(0.5)\n\t#set_friction(0)\n\t#set_angular_damp(2)\n\nfunc _process(delta):\n\tif Input.is_key_pressed(KEY_Q):\n\t\tget_tree().quit()\n\t\n\t#controlByKb()\n\t#controlByControllerNode()\n\t\nfunc controlByKb():\n\tvar tiltAmount = 0.4\n\tvar myBasis = get_global_transform().basis\n\ttargetUpVec = Vector3(0, 1, 0)\n\t\n\tif (Input.is_key_pressed(KEY_UP)):\n\t\ttargetUpVec -= myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_DOWN)):\n\t\ttargetUpVec += myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_RIGHT)):\n\t\ttargetUpVec += myBasis.x*tiltAmount\n\tif (Input.is_key_pressed(KEY_LEFT)):\n\t\ttargetUpVec -= myBasis.x*tiltAmount\n\t\n\ttargetUpVec = targetUpVec.normalized()\n\nfunc controlByControllerNode():\n\tif !controllerNode:\n\t\tprint(\"controllerNode null\")\n\t\treturn\n\t\n\ttargetUpVec = get_node(controllerNode).get_global_transform().basis.y\n\nfunc _fixed_process(delta):\n\tcontrolByControllerNode()\n\t\n\tvar myOrigin = get_global_transform().origin\n\tvar myBasis = get_global_transform().basis\n\t\n\tvar propDist = 0.1\n\t\n\tfor i in range(0, props.size()):\n\t\tvar propLoc = props[i].x*myBasis.x + props[i].y*myBasis.y + props[i].z*myBasis.z\n\t\tvar error = acos(targetUpVec.dot(propLoc.normalized()))-PI/2;\n\t\tvar pidOut = pidControllers[i].iter(error)\n\t\tvar force = 2.6+pidOut\n\t\tapply_impulse(propLoc, myBasis.y*force*delta)\n\t\n\t"
+script/source = "extends RigidBody\n\nexport var props = [\n\tVector3(1, 0, 1),\n\tVector3(-1, 0, 1),\n\tVector3(1, 0, -1),\n\tVector3(-1, 0, -1)\n\t]\n\nexport (NodePath) var controllerNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\nvar pidControllers = []\nvar targetUpVec = Vector3(0, 1, 0)\nvar targetDir = 0\n\nfunc _ready():\n\tfor i in range(0, props.size()):\n\t\tpidControllers.append(PID.new(0.8, 0, 4))\n\tset_process(true)\n\tset_fixed_process(true)\n\tset_linear_damp(0.5)\n\t#set_friction(0)\n\t#set_angular_damp(2)\n\nfunc _process(delta):\n\tif Input.is_key_pressed(KEY_Q):\n\t\tget_tree().quit()\n\t\n\t#controlByKb()\n\t#controlByControllerNode()\n\t\nfunc controlByKb():\n\tvar tiltAmount = 0.4\n\tvar myBasis = get_global_transform().basis\n\ttargetUpVec = Vector3(0, 1, 0)\n\t\n\tif (Input.is_key_pressed(KEY_UP)):\n\t\ttargetUpVec -= myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_DOWN)):\n\t\ttargetUpVec += myBasis.z*tiltAmount\n\tif (Input.is_key_pressed(KEY_RIGHT)):\n\t\ttargetUpVec += myBasis.x*tiltAmount\n\tif (Input.is_key_pressed(KEY_LEFT)):\n\t\ttargetUpVec -= myBasis.x*tiltAmount\n\t\n\ttargetUpVec = targetUpVec.normalized()\n\nfunc controlByControllerNode():\n\tif !controllerNode:\n\t\tprint(\"controllerNode null\")\n\t\treturn\n\t\n\ttargetUpVec = get_node(controllerNode).get_global_transform().basis.y\n\nfunc _fixed_process(delta):\n\tcontrolByControllerNode()\n\t\n\tvar myOrigin = get_global_transform().origin\n\tvar myBasis = get_global_transform().basis\n\t\n\tvar propDist = 0.1\n\t\n\tfor i in range(0, props.size()):\n\t\tvar propLoc = props[i].x*myBasis.x + props[i].y*myBasis.y + props[i].z*myBasis.z\n\t\tvar error = acos(targetUpVec.dot(propLoc.normalized()))-PI/2;\n\t\tvar pidOut = pidControllers[i].iter(error)\n\t\tvar force = 2.6+pidOut\n\t\tapply_impulse(propLoc, myBasis.y*force*delta)\n\t\n\t"
 
 [sub_resource type="GDScript" id=6]
 
@@ -104,7 +101,7 @@ geometry/baked_light_tex_id = 0
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5.08302, 1.08268, 1.79628 )
 script/script = ExtResource( 1 )
-enabled = true
+enabled = false
 useFixedProcess = true
 camFieldOfView = 60.0
 camZNear = 0.002
@@ -112,10 +109,10 @@ camZFar = 500
 eyeDist = 0.06
 camEnvironment = SubResource( 1 )
 
-[node name="TrackingCam" type="Camera" parent="."]
+[node name="Camera" type="Camera" parent="."]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.26195, 2.31856, -9.24032 )
+transform/local = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.84782, 1.5742, 2.00664 )
 projection = 0
 fov = 60.0
 near = 0.1
@@ -123,11 +120,11 @@ far = 100.0
 keep_aspect = 1
 current = false
 visible_layers = 1048575
-environment = SubResource( 1 )
+environment = null
 h_offset = 0.0
 v_offset = 0.0
-script/script = SubResource( 2 )
-enabled = false
+script/script = ExtResource( 3 )
+enabled = true
 target = NodePath("../Drone")
 
 [node name="Drone" type="RigidBody" parent="."]
@@ -170,7 +167,7 @@ shape = SubResource( 3 )
 trigger = false
 _update_shape_index = 0
 
-[node name="drone_greybox_2" parent="Drone" instance=ExtResource( 3 )]
+[node name="drone_greybox_2" parent="Drone" instance=ExtResource( 4 )]
 
 [node name="CamController" type="Position3D" parent="Drone"]
 
@@ -225,7 +222,7 @@ bounce = 0.0
 constant_linear_velocity = Vector3( 0, 0, 0 )
 constant_angular_velocity = Vector3( 0, 0, 0 )
 
-[node name="area_greybox_0" parent="StaticBody" instance=ExtResource( 4 )]
+[node name="area_greybox_0" parent="StaticBody" instance=ExtResource( 5 )]
 
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
 
