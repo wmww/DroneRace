@@ -71,6 +71,7 @@ func controlByControllerNode():
 func makeBroken():
 	broken = true
 	call_deferred("reparentCamController")
+	get_node("../ResetLabel").prepForReset()
 
 func reparentCamController():
 	var camController = get_node("CamController")
