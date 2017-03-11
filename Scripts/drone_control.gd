@@ -21,7 +21,7 @@ func _ready():
 	
 	for i in range(0, props.size()):
 		propPidControllers.append(PID.new(0.8, 0, 4))
-	rotPidController = PID.new(0.6, 0, 12)
+	rotPidController = PID.new(0.6, 0, 5)
 	set_process(true)
 	set_fixed_process(true)
 	set_linear_damp(0.5)
@@ -80,7 +80,14 @@ func _fixed_process(delta):
 	
 	var rotCurrent = atan2(-myBasis.z.x, myBasis.z.z)
 	var rotError = rotTarget-rotCurrent
+	while rotError>PI:
+		rotError = rotError - PI*2
+	while rotError<-PI:
+		rotError = rotError + PI*2
 	var rotMove = rotPidController.iter(rotError)
+	
+	rotMove = min(rotMove, PI/20)
+	rotMove = max(rotMove, -PI/20)
 	
 	apply_impulse(myOrigin + myBasis.z, -myBasis.x*rotMove*delta)
 	apply_impulse(myOrigin - myBasis.z, myBasis.x*rotMove*delta)
