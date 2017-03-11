@@ -58,7 +58,7 @@ extents = Vector3( 0.14, 0.02, 0.14 )
 
 [sub_resource type="GDScript" id=3]
 
-script/source = "extends Position3D\n\nexport (NodePath) var cameraNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\n\nvar cam = null\nvar camDelta = Vector3()\nonready var camPID = PID.new(0.005, 0, 0.2)\n\nfunc _ready():\n\tif cameraNode:\n\t\tcam = get_node(cameraNode)\n\t\n\tif !cam:\n\t\tprint(\"please assign a valid node to camera node in cam controller\")\n\t\tcam = Spatial.new()\n\t\n\tmoveInstantly(1)\n\t\n\tset_fixed_process(true)\n\nfunc _fixed_process(delta):\n\t#moveInstantly(delta)\n\t#moveWithExponentialDecay(delta)\n\tmoveCamWithPID(delta)\n\nfunc moveInstantly(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = get_global_transform().origin\n\tcam.set_global_transform(new)\n\nfunc moveWithExponentialDecay(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = new.origin.linear_interpolate(get_global_transform().origin, delta*15)\n\tcam.set_global_transform(new)\n\nfunc moveCamWithPID(delta):\n\tvar error = get_global_transform().origin-cam.get_global_transform().origin\n\terror /= delta\n\tvar pidOut = camPID.iter(error)\n\tcamDelta += pidOut*delta\n\tcam.global_translate(camDelta)\n"
+script/source = "extends Position3D\n\nexport (NodePath) var cameraNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\n\nvar cam = null\nvar camDelta = Vector3()\nonready var camPID = PID.new(0.0, 0, 0.1)\n\nfunc _ready():\n\t# the \'&& !cam\' is there so if this node is reparented (like in a crash) it will keep the same camera\n\tif cameraNode && !cam:\n\t\tcam = get_node(cameraNode)\n\t\n\tif !cam:\n\t\tprint(\"please assign a valid node to camera node in cam controller\")\n\t\tcam = Spatial.new()\n\t\n\tmoveInstantly(1)\n\t\n\tset_fixed_process(true)\n\nfunc _fixed_process(delta):\n\t#moveInstantly(delta)\n\t#moveWithExponentialDecay(delta)\n\tmoveCamWithPID(delta)\n\nfunc moveInstantly(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = get_global_transform().origin\n\tcam.set_global_transform(new)\n\nfunc moveWithExponentialDecay(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = new.origin.linear_interpolate(get_global_transform().origin, delta*15)\n\tcam.set_global_transform(new)\n\nfunc moveCamWithPID(delta):\n\tvar error = get_global_transform().origin-cam.get_global_transform().origin\n\terror /= delta\n\tvar pidOut = camPID.iter(error)\n\tcamDelta += pidOut*delta\n\tcam.global_translate(camDelta)\n"
 
 [sub_resource type="BoxShape" id=4]
 
@@ -153,7 +153,7 @@ _update_shape_index = 0
 [node name="CamController" type="Position3D" parent="Drone"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, -6.05154e-08, 1.16565e-08, 6.05155e-08, 0.928453, -0.371441, 1.16561e-08, 0.371441, 0.928453, -1.84543e-07, -0.0174706, 1.13272 )
+transform/local = Transform( 1, -8.97399e-08, 2.69438e-08, 8.97401e-08, 0.83462, -0.55082, 2.69434e-08, 0.55082, 0.83462, -8.55034e-08, -0.111809, 0.524821 )
 script/script = SubResource( 3 )
 cameraNode = NodePath("../../VR_Cam")
 

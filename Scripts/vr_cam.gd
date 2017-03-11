@@ -36,6 +36,7 @@ func _ready():
 		disable()
 
 func setup():
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	leftEye=EyeView.new(self, EyeView.LEFT)
 	rightEye=EyeView.new(self, EyeView.RIGHT)
 	set_process(!useFixedProcess)
@@ -78,14 +79,21 @@ func rotateByMouse(delta):
 	
 	if (mousePressed || altPressed):
 		var mousePos=get_viewport().get_mouse_pos()
-		mousePos*=2.0
 		mousePos/=get_viewport().get_rect().size.x
-		mousePos-=Vector2(1, 1)
 		if (prevMousePos!=null):
 			var deltaMouse=mousePos-prevMousePos
-			deltaMouse*=0.9
+			deltaMouse*=1.8
 			global_rotate(Vector3(0, 1, 0), -deltaMouse.x)
 			rotate_x(-deltaMouse.y)
+		#print(get_viewport().get_mouse_pos())
+		#Input.warp_mouse_pos(get_viewport().get_mouse_pos())
+		#print(get_viewport().get_mouse_pos())
+		#mousePos=get_viewport().get_mouse_pos()
+		#mousePos*=2.0
+		#mousePos/=get_viewport().get_rect().size.x
+		#mousePos-=Vector2(1, 1)
+		#Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		
 		prevMousePos=mousePos
 	else:
 		prevMousePos=null
