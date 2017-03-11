@@ -26,6 +26,7 @@ func _ready():
 	rotPidController = PID.new(0.6, 0, 5)
 	controlOffset = get_node(offsetNode).get_transform().basis.inverse()
 	set_max_contacts_reported(1)
+	set_use_continuous_collision_detection(true)
 	set_contact_monitor(true)
 	set_process(true)
 	set_fixed_process(true)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=1]
+[gd_scene load_steps=16 format=1]
 
 [ext_resource path="res://Scripts/vr_cam.gd" type="Script" id=1]
 [ext_resource path="res://Textures/cubemap0_blue/cubemap.cube" type="CubeMap" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://Scenes/area_greybox_0.scn" type="PackedScene" id=5]
 [ext_resource path="res://Scenes/urban/covered_walkway.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Fonts/Vera.fnt" type="BitmapFont" id=7]
+[ext_resource path="res://Scenes/urban/simp_building.tscn" type="PackedScene" id=8]
 
 [sub_resource type="Environment" id=1]
 
@@ -101,7 +102,7 @@ geometry/baked_light_tex_id = 0
 [node name="VR_Cam" type="Position3D" parent="."]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, -0.0652485, 1.92291, 5.45949 )
+transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, -0.00905515, 2.07455, 5.40664 )
 script/script = ExtResource( 1 )
 enabled = true
 useFixedProcess = true
@@ -158,7 +159,7 @@ _update_shape_index = 0
 [node name="CamController" type="Position3D" parent="Drone"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, -8.97399e-08, 2.69438e-08, 8.97401e-08, 0.83462, -0.55082, 2.69434e-08, 0.55082, 0.83462, -2.06479e-07, -0.149208, 1.26736 )
+transform/local = Transform( 1, -7.14174e-08, 1.6488e-08, 7.14175e-08, 0.898797, -0.438358, 1.64876e-08, 0.438358, 0.898797, -2.06479e-07, -0.149208, 1.26736 )
 script/script = SubResource( 3 )
 cameraNode = NodePath("../../VR_Cam")
 
@@ -236,18 +237,22 @@ _update_shape_index = 2
 
 [node name="covered_walkway" parent="StaticBody" instance=ExtResource( 6 )]
 
+_import_path = NodePath(".")
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 36.2135, 0, 34.1807 )
 
 [node name="covered_walkway1" parent="StaticBody" instance=ExtResource( 6 )]
 
+_import_path = NodePath(".")
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 34.058, 0, 34.1807 )
 
 [node name="covered_walkway2" parent="StaticBody" instance=ExtResource( 6 )]
 
+_import_path = NodePath(".")
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 31.9039, 0, 34.1807 )
 
 [node name="covered_walkway3" parent="StaticBody" instance=ExtResource( 6 )]
 
+_import_path = NodePath(".")
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 29.7504, 0, 34.1807 )
 
 [node name="ResetLabel" type="RichTextLabel" parent="."]
@@ -272,5 +277,9 @@ bbcode/enabled = false
 bbcode/bbcode = ""
 visible_characters = -1
 script/script = SubResource( 7 )
+
+[node name="SimpBuilding" parent="." instance=ExtResource( 8 )]
+
+transform/local = Transform( 0.972038, 0, 0.234825, 0, 1, 0, -0.234825, 0, 0.972038, -40.3372, 0, -51.7498 )
 
 
