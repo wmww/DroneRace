@@ -5,8 +5,8 @@
       <author>William W Wold</author>
       <authoring_tool>Blender 2.78.0 commit date:2017-02-24, commit time:14:33, hash:e92f235283</authoring_tool>
     </contributor>
-    <created>2017-03-11T01:58:24</created>
-    <modified>2017-03-11T01:58:24</modified>
+    <created>2017-03-11T19:22:50</created>
+    <modified>2017-03-11T19:22:50</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -19,6 +19,9 @@
     </image>
     <image id="TexturesCom_SlateFloor_albedo_M_png" name="TexturesCom_SlateFloor_albedo_M_png">
       <init_from>/home/william/godot/DroneRace0/Textures/urban/SlateFloor/TexturesCom_SlateFloor_albedo_M.png</init_from>
+    </image>
+    <image id="TexturesCom_SlateFloor_normalmap_M_png" name="TexturesCom_SlateFloor_normalmap_M_png">
+      <init_from>/home/william/godot/DroneRace0/Textures/urban/SlateFloor/TexturesCom_SlateFloor_normalmap_M.png</init_from>
     </image>
     <image id="TexturesCom_BrickLargeBlocks0016_1_seamless_S_jpg" name="TexturesCom_BrickLargeBlocks0016_1_seamless_S_jpg">
       <init_from>/home/william/godot/DroneRace0/Textures/urban/TexturesCom_BrickLargeBlocks0016_1_seamless_S.jpg</init_from>
@@ -90,14 +93,14 @@
             <source>TexturesCom_BrickLargeBlocks0016_1_seamless_S_jpg-surface</source>
           </sampler2D>
         </newparam>
-        <newparam sid="TexturesCom_LargeMedievalBrick_normalmap_M_png-surface">
+        <newparam sid="TexturesCom_SlateFloor_normalmap_M_png-surface">
           <surface type="2D">
-            <init_from>TexturesCom_LargeMedievalBrick_normalmap_M_png</init_from>
+            <init_from>TexturesCom_SlateFloor_normalmap_M_png</init_from>
           </surface>
         </newparam>
-        <newparam sid="TexturesCom_LargeMedievalBrick_normalmap_M_png-sampler">
+        <newparam sid="TexturesCom_SlateFloor_normalmap_M_png-sampler">
           <sampler2D>
-            <source>TexturesCom_LargeMedievalBrick_normalmap_M_png-surface</source>
+            <source>TexturesCom_SlateFloor_normalmap_M_png-surface</source>
           </sampler2D>
         </newparam>
         <technique sid="common">
@@ -118,7 +121,7 @@
           <extra>
             <technique profile="FCOLLADA">
               <bump>
-                <texture texture="TexturesCom_LargeMedievalBrick_normalmap_M_png-sampler" texcoord="UVMap"/>
+                <texture texture="TexturesCom_SlateFloor_normalmap_M_png-sampler" texcoord="UVMap"/>
               </bump>
             </technique>
           </extra>

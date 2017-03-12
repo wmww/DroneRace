@@ -159,7 +159,7 @@ _update_shape_index = 0
 [node name="CamController" type="Position3D" parent="Drone"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, -7.14174e-08, 1.6488e-08, 7.14175e-08, 0.898797, -0.438358, 1.64876e-08, 0.438358, 0.898797, -2.06479e-07, -0.149208, 1.26736 )
+transform/local = Transform( 1, -7.14174e-08, 1.6488e-08, 7.14175e-08, 0.898797, -0.438358, 1.64876e-08, 0.438358, 0.898797, -6.79811e-07, -0.44442, 4.17265 )
 script/script = SubResource( 3 )
 cameraNode = NodePath("../../VR_Cam")
 
@@ -238,21 +238,25 @@ _update_shape_index = 2
 [node name="covered_walkway" parent="StaticBody" instance=ExtResource( 6 )]
 
 _import_path = NodePath(".")
+_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 36.2135, 0, 34.1807 )
 
 [node name="covered_walkway1" parent="StaticBody" instance=ExtResource( 6 )]
 
 _import_path = NodePath(".")
+_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 34.058, 0, 34.1807 )
 
 [node name="covered_walkway2" parent="StaticBody" instance=ExtResource( 6 )]
 
 _import_path = NodePath(".")
+_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 31.9039, 0, 34.1807 )
 
 [node name="covered_walkway3" parent="StaticBody" instance=ExtResource( 6 )]
 
 _import_path = NodePath(".")
+_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 29.7504, 0, 34.1807 )
 
 [node name="ResetLabel" type="RichTextLabel" parent="."]
