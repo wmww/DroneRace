@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=1]
+[gd_scene load_steps=17 format=1]
 
 [ext_resource path="res://Scripts/vr_cam.gd" type="Script" id=1]
 [ext_resource path="res://Textures/cubemap0_blue/cubemap.cube" type="CubeMap" id=2]
@@ -8,6 +8,7 @@
 [ext_resource path="res://Scenes/urban/covered_walkway.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Fonts/Vera.fnt" type="BitmapFont" id=7]
 [ext_resource path="res://Scenes/urban/simp_building.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Scenes/urban/godot_export_test.scn" type="PackedScene" id=9]
 
 [sub_resource type="Environment" id=1]
 
@@ -60,7 +61,7 @@ extents = Vector3( 0.14, 0.02, 0.14 )
 
 [sub_resource type="GDScript" id=3]
 
-script/source = "extends Position3D\n\nexport (NodePath) var cameraNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\n\nvar cam = null\nvar camDelta = Vector3()\nonready var camPID = PID.new(0.001, 0, 0.2)\n\nfunc _ready():\n\t# the \'&& !cam\' is there so if this node is reparented (like in a crash) it will keep the same camera\n\tif cameraNode && !cam:\n\t\tcam = get_node(cameraNode)\n\t\n\tif !cam:\n\t\tprint(\"please assign a valid node to camera node in cam controller\")\n\t\tcam = Spatial.new()\n\t\n\tmoveInstantly(1)\n\t\n\tset_fixed_process(true)\n\nfunc _fixed_process(delta):\n\t#moveInstantly(delta)\n\t#moveWithExponentialDecay(delta)\n\tmoveCamWithPID(delta)\n\nfunc moveInstantly(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = get_global_transform().origin\n\tcam.set_global_transform(new)\n\nfunc moveWithExponentialDecay(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = new.origin.linear_interpolate(get_global_transform().origin, delta*15)\n\tcam.set_global_transform(new)\n\nfunc moveCamWithPID(delta):\n\tvar error = get_global_transform().origin-cam.get_global_transform().origin\n\terror /= delta\n\tvar pidOut = camPID.iter(error)\n\tcamDelta += pidOut*delta\n\tcam.global_translate(camDelta)\n"
+script/source = "extends Position3D\n\nexport (NodePath) var cameraNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\n\nvar cam = null\nvar camDelta = Vector3()\nonready var camPID = PID.new(0.0001, 0, 0.1)\n\nfunc _ready():\n\t# the \'&& !cam\' is there so if this node is reparented (like in a crash) it will keep the same camera\n\tif cameraNode && !cam:\n\t\tcam = get_node(cameraNode)\n\t\n\tif !cam:\n\t\tprint(\"please assign a valid node to camera node in cam controller\")\n\t\tcam = Spatial.new()\n\t\n\tmoveInstantly(1)\n\t\n\tset_fixed_process(true)\n\nfunc _fixed_process(delta):\n\t#moveInstantly(delta)\n\t#moveWithExponentialDecay(delta)\n\tmoveCamWithPID(delta)\n\nfunc moveInstantly(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = get_global_transform().origin\n\tcam.set_global_transform(new)\n\nfunc moveWithExponentialDecay(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = new.origin.linear_interpolate(get_global_transform().origin, delta*15)\n\tcam.set_global_transform(new)\n\nfunc moveCamWithPID(delta):\n\tvar error = get_global_transform().origin-cam.get_global_transform().origin\n\terror /= delta\n\tvar pidOut = camPID.iter(error)\n\tcamDelta += pidOut*delta\n\tcam.global_translate(camDelta)\n"
 
 [sub_resource type="BoxShape" id=4]
 
@@ -159,7 +160,7 @@ _update_shape_index = 0
 [node name="CamController" type="Position3D" parent="Drone"]
 
 _import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-transform/local = Transform( 1, -7.14174e-08, 1.6488e-08, 7.14175e-08, 0.898797, -0.438358, 1.64876e-08, 0.438358, 0.898797, -6.79811e-07, -0.44442, 4.17265 )
+transform/local = Transform( 1, -7.14174e-08, 1.6488e-08, 7.14175e-08, 0.898797, -0.438358, 1.64876e-08, 0.438358, 0.898797, -4.98915e-07, -0.147205, 3.06232 )
 script/script = SubResource( 3 )
 cameraNode = NodePath("../../VR_Cam")
 
@@ -238,25 +239,21 @@ _update_shape_index = 2
 [node name="covered_walkway" parent="StaticBody" instance=ExtResource( 6 )]
 
 _import_path = NodePath(".")
-_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 36.2135, 0, 34.1807 )
 
 [node name="covered_walkway1" parent="StaticBody" instance=ExtResource( 6 )]
 
 _import_path = NodePath(".")
-_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 34.058, 0, 34.1807 )
 
 [node name="covered_walkway2" parent="StaticBody" instance=ExtResource( 6 )]
 
 _import_path = NodePath(".")
-_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 31.9039, 0, 34.1807 )
 
 [node name="covered_walkway3" parent="StaticBody" instance=ExtResource( 6 )]
 
 _import_path = NodePath(".")
-_import_transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 29.7504, 0, 34.1807 )
 
 [node name="ResetLabel" type="RichTextLabel" parent="."]
@@ -285,5 +282,7 @@ script/script = SubResource( 7 )
 [node name="SimpBuilding" parent="." instance=ExtResource( 8 )]
 
 transform/local = Transform( 0.972038, 0, 0.234825, 0, 1, 0, -0.234825, 0, 0.972038, -40.3372, 0, -51.7498 )
+
+[node name="godot_export_test" parent="." instance=ExtResource( 9 )]
 
 
