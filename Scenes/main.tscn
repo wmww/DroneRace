@@ -61,7 +61,51 @@ extents = Vector3( 0.14, 0.02, 0.14 )
 
 [sub_resource type="GDScript" id=3]
 
-script/source = "extends Position3D\n\nexport (NodePath) var cameraNode\n\nconst PID = preload(\"../Scripts/PID.gd\")\n\nvar cam = null\nvar camDelta = Vector3()\nonready var camPID = PID.new(0.0001, 0, 0.1)\n\nfunc _ready():\n\t# the \'&& !cam\' is there so if this node is reparented (like in a crash) it will keep the same camera\n\tif cameraNode && !cam:\n\t\tcam = get_node(cameraNode)\n\t\n\tif !cam:\n\t\tprint(\"please assign a valid node to camera node in cam controller\")\n\t\tcam = Spatial.new()\n\t\n\tmoveInstantly(1)\n\t\n\tset_fixed_process(true)\n\nfunc _fixed_process(delta):\n\t#moveInstantly(delta)\n\t#moveWithExponentialDecay(delta)\n\tmoveCamWithPID(delta)\n\nfunc moveInstantly(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = get_global_transform().origin\n\tcam.set_global_transform(new)\n\nfunc moveWithExponentialDecay(delta):\n\tvar new = cam.get_global_transform()\n\tnew.origin = new.origin.linear_interpolate(get_global_transform().origin, delta*15)\n\tcam.set_global_transform(new)\n\nfunc moveCamWithPID(delta):\n\tvar error = get_global_transform().origin-cam.get_global_transform().origin\n\terror /= delta\n\tvar pidOut = camPID.iter(error)\n\tcamDelta += pidOut*delta\n\tcam.global_translate(camDelta)\n"
+script/source = "extends Position3D
+
+export (NodePath) var cameraNode
+
+const PID = preload(\"../Scripts/PID.gd\")
+
+var cam = null
+var camDelta = Vector3()
+onready var camPID = PID.new(0.0001, 0, 0.1)
+
+func _ready():
+	# the '&& !cam' is there so if this node is reparented (like in a crash) it will keep the same camera
+	if cameraNode && !cam:
+		cam = get_node(cameraNode)
+	
+	if !cam:
+		print(\"please assign a valid node to camera node in cam controller\")
+		cam = Spatial.new()
+	
+	moveInstantly(1)
+	
+	set_fixed_process(true)
+
+func _fixed_process(delta):
+	#moveInstantly(delta)
+	#moveWithExponentialDecay(delta)
+	moveCamWithPID(delta)
+
+func moveInstantly(delta):
+	var new = cam.get_global_transform()
+	new.origin = get_global_transform().origin
+	cam.set_global_transform(new)
+
+func moveWithExponentialDecay(delta):
+	var new = cam.get_global_transform()
+	new.origin = new.origin.linear_interpolate(get_global_transform().origin, delta*15)
+	cam.set_global_transform(new)
+
+func moveCamWithPID(delta):
+	var error = get_global_transform().origin-cam.get_global_transform().origin
+	error /= delta
+	var pidOut = camPID.iter(error)
+	camDelta += pidOut*delta
+	cam.global_translate(camDelta)
+"
 
 [sub_resource type="BoxShape" id=4]
 
@@ -77,7 +121,32 @@ radius = 22.5874
 
 [sub_resource type="GDScript" id=7]
 
-script/source = "extends RichTextLabel\n\n# class member variables go here, for example:\n# var a = 2\n# var b = \"textvar\"\n\nfunc _ready():\n\t# Called every time the node is added to the scene.\n\t# Initialization here\n\tpass\n\nvar resetCounter=0\n\nfunc prepForReset():\n\tset_process(true)\n\nfunc _process(delta):\n\tresetCounter+=delta\n\t\n\t#set_visible_characters(get_bbcode().length()-3+(int((resetCounter+2)*3)%4))\n\t\n\t#if resetCounter>2 && is_hidden():\n\t#\tshow()\n\t\t\n\tif resetCounter>3:\n\t\tget_tree().reload_current_scene()"
+script/source = "extends RichTextLabel
+
+# class member variables go here, for example:
+# var a = 2
+# var b = \"textvar\"
+
+func _ready():
+	# Called every time the node is added to the scene.
+	# Initialization here
+	pass
+
+var resetCounter=0
+
+func prepForReset():
+	set_process(true)
+
+func _process(delta):
+	resetCounter+=delta
+	
+	#set_visible_characters(get_bbcode().length()-3+(int((resetCounter+2)*3)%4))
+	
+	#if resetCounter>2 && is_hidden():
+	#	show()
+		
+	if resetCounter>3:
+		get_tree().reload_current_scene()"
 
 [node name="Root" type="Node"]
 
@@ -238,22 +307,18 @@ _update_shape_index = 2
 
 [node name="covered_walkway" parent="StaticBody" instance=ExtResource( 6 )]
 
-_import_path = NodePath(".")
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 36.2135, 0, 34.1807 )
 
 [node name="covered_walkway1" parent="StaticBody" instance=ExtResource( 6 )]
 
-_import_path = NodePath(".")
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 34.058, 0, 34.1807 )
 
 [node name="covered_walkway2" parent="StaticBody" instance=ExtResource( 6 )]
 
-_import_path = NodePath(".")
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 31.9039, 0, 34.1807 )
 
 [node name="covered_walkway3" parent="StaticBody" instance=ExtResource( 6 )]
 
-_import_path = NodePath(".")
 transform/local = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 29.7504, 0, 34.1807 )
 
 [node name="ResetLabel" type="RichTextLabel" parent="."]
